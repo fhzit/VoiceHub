@@ -492,7 +492,7 @@ nix run .#default --impure
 
 ##### 更新 pnpm 依赖哈希
 
-当 `pnpm-lock.yaml` 更新后，需要同步 `flake.nix` 中的 `pnpmDeps` 哈希。仓库已配置 GitHub Actions，会在 `pnpm-lock.yaml` 或 `flake.nix` 变更时自动计算新哈希并提交回触发分支。
+当 `pnpm-lock.yaml` 更新后，需要同步 `flake.nix` 中的 `pnpmDeps` 哈希。Nix CI 在构建因哈希过期失败时，会自动计算新哈希、验证构建并提交回触发分支；fork PR 与 bot 自身触发的运行只报错不写回，需要人工更新。
 
 如果需要在本地手动更新，可以先将 `flake.nix` 中 `pnpmDeps.hash` 临时改为空字符串，然后运行：
 
@@ -766,8 +766,7 @@ VoiceHub/
 │       ├── build-fpk.yml      # FnOS FPK 安装包构建
 │       ├── docker-build.yml   # Docker 镜像构建
 │       ├── docker-postgres.yml # PostgreSQL Docker 镜像构建
-│       ├── nix.yml            # Nix 构建校验
-│       └── update-nix-pnpm-hash.yml # 自动同步 pnpmDeps 哈希
+│       └── nix.yml            # Nix 构建校验与 pnpmDeps 哈希同步
 ├── app/                       # Nuxt 4 应用主目录
 │   ├── app.vue                # 应用入口文件
 │   ├── assets/                # 静态资源目录
@@ -799,6 +798,7 @@ VoiceHub/
 │   │   │   ├── CardCodesManager.vue   # 点歌券管理
 │   │   │   ├── DataAnalysisPanel.vue  # 数据分析面板
 │   │   │   ├── DatabaseManager.vue    # 数据库管理
+│   │   │   ├── DuplicateSongsModal.vue # 重复歌曲检测弹窗
 │   │   │   ├── EmailTemplateManager.vue # 邮件模板管理
 │   │   │   ├── MusicSourceController.vue # 音源控制管理
 │   │   │   ├── MusicSourcePlugins.vue # LX Music 与 MusicFree 插件音源管理
@@ -813,6 +813,7 @@ VoiceHub/
 │   │   │   ├── ScheduleForm.vue       # 排期表单
 │   │   │   ├── ScheduleItemPrint.vue  # 排期项目打印
 │   │   │   ├── ScheduleManager.vue    # 排期管理
+│   │   │   ├── SchedulePlaylistExportModal.vue # 排期歌单导出弹窗（CSV）
 │   │   │   ├── SchedulePlaylistFilterModal.vue # 排期歌单过滤器
 │   │   │   ├── SchedulePrinter.vue    # 排期打印功能
 │   │   │   ├── ScheduleTablePrint.vue # 排期表格打印功能
@@ -941,6 +942,7 @@ VoiceHub/
 │   │   ├── usePlatformConfig.ts    # 平台管理配置hooks
 │   │   ├── usePermissions.ts   # 权限管理hooks
 │   │   ├── usePasswordStrength.ts # 密码强度检测hooks
+│   │   ├── usePlayerLayout.ts  # 播放器布局（固定底部/自由拖拽）偏好hooks
 │   │   ├── useProgress.ts      # 进度管理hooks
 │   │   ├── useProgressEvents.ts # 进度事件hooks
 │   │   ├── useRequestDedup.ts  # 请求去重hooks
@@ -1019,10 +1021,12 @@ VoiceHub/
 │       │   ├── lyricLanguage.ts # 歌词语言识别（CJK 混合上下文）
 │       │   ├── lyricMatchQuality.ts # 歌词版本一致性检测
 │       │   ├── lyricParser.ts # 歌词解析器
+│       │   ├── lyricText.ts   # 歌词行文本/音译提取
 │       │   ├── lyricStripper.ts # 歌词清理
 │       │   ├── parseLrc.ts    # LRC格式解析
 │       │   └── qrc-parser.ts  # QRC格式解析
 │       ├── bilibiliSource.ts  # 哔哩哔哩音源
+│       ├── cover-theme.ts    # 封面取色与歌词主题色（AMLL 调色板）
 │       ├── debounce.ts       # 防抖工具
 │       ├── grade-class-input.ts # 年级班级批量输入解析
 │       ├── gradeClassWeights.js # 年级排序权重
@@ -1034,6 +1038,7 @@ VoiceHub/
 │       ├── pluginResolver.ts   # 插件音源搜索、歌词与媒体解析接入
 │       ├── pluginPlatform.ts # 插件音源平台键、插件 ID 与音质映射（LX Music / MusicFree）
 │       ├── platforms.ts       # 平台元数据共享（白名单/显示名/图标）
+│       ├── playerLayout.ts    # 播放器布局模式与自由拖拽坐标解析
 │       ├── blacklist.ts       # 歌曲类型黑名单候选值共享（语种/曲风）
 │       ├── sentryUpstreamMusicErrors.ts # Sentry 上游音源错误过滤
 │       ├── song-name-normalize.ts # 歌曲名称归一化匹配
@@ -1143,6 +1148,7 @@ VoiceHub/
 │   │   │   │   ├── index.post.ts    # 创建点歌时间
 │   │   │   │   └── index.ts         # 点歌时间列表
 │   │   │   ├── schedule/            # 排期管理API
+│   │   │   │   ├── bulk-draft.post.ts # 批量保存排期草稿
 │   │   │   │   ├── bulk-publish.post.ts # 批量发布排期
 │   │   │   │   ├── copy.post.ts     # 复制排期到指定日期
 │   │   │   │   ├── draft.post.ts    # 保存排期草稿
@@ -1525,6 +1531,7 @@ VoiceHub/
 │       ├── notification-history-policy.test.ts # 通知批次引用、筛选与分页策略测试
 │       ├── oauth-state-cookie.test.ts # OAuth state Cookie 安全测试
 │       ├── password-policy.test.ts # 密码策略测试
+│       ├── player-layout.test.ts # 播放器自由拖拽限位与偏好解析测试
 │       ├── qq-comment-normalize.test.ts # QQ音乐评论归一化测试
 │       ├── song-duration-policy.test.ts # 歌曲时长归一化与补齐决策测试
 │       ├── submission-restriction-policy.test.ts # 重复投稿限制模式判定测试
@@ -2128,7 +2135,7 @@ VoiceHub 采用了模块化的音源架构，支持多音源故障转移和动�
 - **兼容协议**：运行时兼容 LX Music 的 `lx.on` / `lx.send` / `lx.request` 协议，以及 MusicFree 的 CommonJS `search`、`getMediaSource`、`getLyric` 协议。协议可自动识别，也可以在后台明确指定。LX Music 音源作为内置平台的解析器参与回退，声明了搜索能力的插件才会出现在搜索平台列表。
 - **安全执行**：第三方脚本在 QuickJS/WASM 中运行，不会直接导入 Nitro 主进程。宿主仅提供受限 HTTP、加密、压缩、随机数和日志能力；网络请求会校验协议、重定向、DNS 和内网地址，并受限于超时、内存、响应体积与并发数。
 - **常驻部署**：Node/Docker 保存或刷新插件后立即下载、校验并原子切换到新版本。下载或验证失败时，已生效版本继续服务；启用开关和拖拽排序立即生效。
-- **Serverless 部署**：构建时 `pnpm run build:plugins` 从数据库读取配置并生成部署快照。新增或修改脚本在下一次部署后生效；已部署版本的启用开关和排序仍从数据库读取。
+- **Serverless 部署**：构建时 `pnpm run build:plugins` 从数据库读取配置并生成部署快照。下载或验证失败的插件不会写入快照，仅跳过该插件，不终止部署。新增或修改脚本在下一次部署后生效；已部署版本的启用开关和排序仍从数据库读取。
 - **回退与播放**：搜索、歌词和播放链接会按启用且排序后的插件依次尝试。媒体链接经受限代理提供 Range 支持，服务端保存加密的短期选择凭证，避免插件特有字段在后续播放时丢失。
 - **配置与备份**：插件参数加密保存，管理接口仅返回是否已配置；脚本 URL 会脱敏展示。系统数据备份包含插件配置、版本和歌曲的插件选择数据。
 

@@ -1106,6 +1106,8 @@ export const pages = {
       lyricOffset: 'Lyric offset (ms)',
       showTranslation: 'Show translation',
       showRoma: 'Show romanization',
+      showWordsRoma: 'Word romaji',
+      swapTranRoma: 'Roma before trans',
       showYrc: 'Word-by-word lyrics (YRC)',
       amllNormalizeSpaces: 'Normalize spaces',
       amllResetLineTimestamps: 'Reset line times',
@@ -1227,7 +1229,10 @@ export const pages = {
     pluginNoUrl: 'Source plugin did not return a playback link',
     loopOneEnabled: 'Repeat one enabled',
     singleEnabled: 'Single-play mode enabled',
-    listLoopEnabled: 'Playlist loop enabled'
+    listLoopEnabled: 'Playlist loop enabled',
+    playerFreeDrag: 'Switch to free drag',
+    playerDock: 'Dock to bottom',
+    freeDragEnabled: 'Free drag enabled, drag the player anywhere'
   },
   songs: {
     actions: {
@@ -2022,6 +2027,7 @@ export const admin = {
       download: 'Download',
       delete: 'Delete',
       addManual: 'Add Manually',
+      duplicate: 'Duplicates',
       refresh: 'Refresh',
       viewRemark: 'View Remark',
       edit: 'Edit Song',
@@ -2065,6 +2071,15 @@ export const admin = {
     empty: {
       search: 'No matching songs found',
       default: 'No song data'
+    },
+    duplicateModal: {
+      title: 'Duplicate Check',
+      subtitle: (groups: number, songs: number) => `${groups} dup group(s), ${songs} songs in current filter`,
+      matchHint: 'Matched by title and artist, ignoring case, spaces, punctuation, Chinese character variants and feat. tags',
+      empty: 'No duplicate songs in the current filter',
+      dupCount: (count: number) => `${count} dup`,
+      sameSource: 'Same source',
+      diffSource: 'Diff sources'
     },
     dialog: {
       cancel: 'Cancel',
@@ -2524,6 +2539,7 @@ export const admin = {
     refreshPageDurations: 'Refresh this page song durations from platform',
     refreshCandidateDurations: 'Refresh candidate song durations from platform',
     downloadSongs: 'Download Songs',
+    exportPlaylist: 'Export List',
     markAllPlayed: 'Mark All Played',
     moveDate: 'Move Date',
     copyDate: 'Copy Schedule',
@@ -2711,6 +2727,48 @@ export const admin = {
         newSongs: 'New Songs Chart',
         original: 'Original Chart',
         hotSongs: 'Hot Songs Chart'
+      }
+    },
+    playlistExportModal: {
+      title: 'Export Playlist',
+      scope: 'Scope: {0}',
+      songCount: '{0} song(s)',
+      allPlayTimes: 'All Slots',
+      columnCount: '{0} column(s)',
+      groupSchedule: 'Schedule',
+      groupSong: 'Song',
+      groupRequest: 'Request',
+      noteOptionsTitle: 'Note Options',
+      includeUnapprovedNotes: 'Include Unapproved Notes',
+      includeUnapprovedNotesHint: 'When off, only notes approved for public display are kept; others stay empty',
+      resetDefault: 'Reset',
+      cancel: 'Cancel',
+      exportButton: 'Export CSV',
+      fileNamePrefix: 'playlist',
+      exportSuccess: 'Exported {0} song(s)',
+      exportFailed: 'Export failed',
+      fields: {
+        sequence: 'Order',
+        playDate: 'Date',
+        playTime: 'Slot',
+        status: 'Status',
+        title: 'Title',
+        artist: 'Artist',
+        duration: 'Length',
+        platform: 'Source',
+        requester: 'Requester',
+        requesterClass: 'Class',
+        collaborators: 'Co-requesters',
+        voteCount: 'Votes',
+        preferredPlayTime: 'Preferred',
+        submissionNote: 'Message',
+        replayNote: 'Replay Msg'
+      },
+      statusValues: {
+        draft: 'Draft',
+        published: 'Published',
+        played: 'Played',
+        unsaved: 'Unsaved'
       }
     },
     remarkDialog: {
@@ -4444,6 +4502,7 @@ export const serverErrors = {
   SONG_DURATION_PLATFORM_REQUIRED: 'Song missing platform or music ID, cannot retrieve duration',
   SONG_COVER_PLATFORM_REQUIRED: 'Song missing platform or music ID, cannot retrieve cover',
   SONG_CARD_RELEASE_FAILED: 'Failed to release the request card; the withdrawal was aborted',
+  SONG_CARD_RESTORE_FAILED: 'Failed to restore the request card; the draft save was aborted',
   SONG_NO_ACTIVE_SEMESTER_IMPORT: 'No active semester is set, so songs cannot be imported. Please ask an administrator to set an active semester first.',
   SONG_FETCH_VOTERS_FAILED: 'Failed to fetch the voter list',
   SONG_FETCH_STATUS_FAILED: 'Failed to fetch the submission status',

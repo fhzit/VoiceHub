@@ -1117,6 +1117,8 @@ export const pages = {
       lyricOffset: '歌词偏移 (ms)',
       showTranslation: '显示翻译',
       showRoma: '显示罗马音',
+      showWordsRoma: '逐字罗马音',
+      swapTranRoma: '音译置于翻译前',
       showYrc: '逐字歌词 (YRC)',
       amllNormalizeSpaces: '规范空格',
       amllResetLineTimestamps: '对齐行时间戳',
@@ -1238,7 +1240,10 @@ export const pages = {
     pluginNoUrl: '插件音源未返回播放链接',
     loopOneEnabled: '已切换为单曲循环',
     singleEnabled: '已切换为单曲播放',
-    listLoopEnabled: '已切换为列表循环'
+    listLoopEnabled: '已切换为列表循环',
+    playerFreeDrag: '切换为自由拖拽模式',
+    playerDock: '固定到底部',
+    freeDragEnabled: '已切换为自由拖拽模式，拖动播放器可移动到任意位置'
   },
   songs: {
     actions: {
@@ -2031,6 +2036,7 @@ export const admin = {
       download: '下载',
       delete: '删除',
       addManual: '手动添加',
+      duplicate: '重复检测',
       refresh: '刷新',
       viewRemark: '查看备注留言',
       edit: '编辑歌曲',
@@ -2074,6 +2080,15 @@ export const admin = {
     empty: {
       search: '没有找到匹配的歌曲',
       default: '暂无歌曲数据'
+    },
+    duplicateModal: {
+      title: '重复歌曲检测',
+      subtitle: (groups: number, songs: number) => `当前筛选下发现 ${groups} 组重复，共 ${songs} 首`,
+      matchHint: '按歌名与歌手判定重复，忽略大小写、空格、标点、繁简体与 feat. 标记',
+      empty: '当前筛选范围内没有重复歌曲',
+      dupCount: (count: number) => `${count} 首重复`,
+      sameSource: '音源相同',
+      diffSource: '音源不同'
     },
     dialog: {
       cancel: '取消',
@@ -2533,6 +2548,7 @@ export const admin = {
     refreshPageDurations: '从平台重新获取本页歌曲时长',
     refreshCandidateDurations: '从平台重新获取候选歌曲时长',
     downloadSongs: '下载歌曲',
+    exportPlaylist: '导出歌单',
     markAllPlayed: '全部已播放',
     moveDate: '迁移日期',
     copyDate: '复制排期',
@@ -2720,6 +2736,48 @@ export const admin = {
         newSongs: '新歌榜',
         original: '原创榜',
         hotSongs: '热歌榜'
+      }
+    },
+    playlistExportModal: {
+      title: '导出歌单',
+      scope: '导出范围：{0}',
+      songCount: '{0} 首',
+      allPlayTimes: '全部时段',
+      columnCount: '共 {0} 列',
+      groupSchedule: '排期信息',
+      groupSong: '歌曲信息',
+      groupRequest: '投稿信息',
+      noteOptionsTitle: '留言选项',
+      includeUnapprovedNotes: '包含未通过公开审核的留言',
+      includeUnapprovedNotesHint: '关闭后，投稿留言仅保留已通过公开审核的内容，其余留空',
+      resetDefault: '恢复默认',
+      cancel: '取消',
+      exportButton: '导出 CSV',
+      fileNamePrefix: '歌单',
+      exportSuccess: '已导出 {0} 首歌曲',
+      exportFailed: '导出失败',
+      fields: {
+        sequence: '播出序号',
+        playDate: '播出日期',
+        playTime: '播出时段',
+        status: '状态',
+        title: '歌名',
+        artist: '歌手',
+        duration: '时长',
+        platform: '音源',
+        requester: '投稿人',
+        requesterClass: '年级班级',
+        collaborators: '联合投稿人',
+        voteCount: '投票数',
+        preferredPlayTime: '期望时段',
+        submissionNote: '投稿留言',
+        replayNote: '重播留言'
+      },
+      statusValues: {
+        draft: '草稿',
+        published: '已发布',
+        played: '已播放',
+        unsaved: '未保存'
       }
     },
     remarkDialog: {
@@ -4453,6 +4511,7 @@ export const serverErrors = {
   SONG_DURATION_PLATFORM_REQUIRED: '歌曲缺少平台或音乐 ID 信息，无法获取时长',
   SONG_COVER_PLATFORM_REQUIRED: '歌曲缺少平台或音乐 ID 信息，无法获取封面',
   SONG_CARD_RELEASE_FAILED: '点歌券释放失败，撤回已终止',
+  SONG_CARD_RESTORE_FAILED: '点歌券返还失败，保存草稿已终止',
   SONG_NO_ACTIVE_SEMESTER_IMPORT: '系统未设置当前活跃学期，无法导入歌曲。请联系管理员先设置活跃学期。',
   SONG_FETCH_VOTERS_FAILED: '获取投票人员列表失败',
   SONG_FETCH_STATUS_FAILED: '获取投稿状态失败',
