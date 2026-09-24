@@ -4493,6 +4493,7 @@ export const serverErrors = {
   SONG_INVITATION_NOT_FOUND: 'No pending invitation was found',
   AUTH_LOGIN_REQUIRED: 'Please sign in first',
   SONG_NO_ACTIVE_SEMESTER_VOTE: 'No active semester is set, so voting is unavailable',
+  SONG_NO_ACTIVE_SEMESTER: 'No active semester is set. Song requests are temporarily unavailable. Please contact an administrator.',
   COMMON_INSUFFICIENT_PERMISSION: 'Insufficient permissions',
   COMMON_TARGET_NOT_FOUND: 'Target not found',
   USER_NOT_PENDING: 'Only users pending approval can be reviewed',

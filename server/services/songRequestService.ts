@@ -612,40 +612,35 @@ export async function requestSongForUser(event: any, user: SongRequestUser, body
 
     return song
   } catch (error: any) {
-    console.error('点歌失败:', error)
-
+    // 带 statusCode 的是业务错误（含无活跃学期），交给响应处理；只有意外异常才打错误日志
     if (error.statusCode) {
       throw error
-    } else if (error.message === '未设置活跃学期') {
-      throw createError({
-        statusCode: 400,
-        message: '系统未设置当前活跃学期，请联系管理员'
-      })
-    } else {
-      throw createError({
-        statusCode: 500,
-        message: '点歌失败，请稍后重试'
-      })
     }
+    console.error('点歌失败:', error)
+
+    throw createError({
+      statusCode: 500,
+      message: '点歌失败，请稍后重试'
+    })
   }
 }
 
 async function getCurrentSemesterName() {
-  try {
-    const currentSemesterResult = await db
-      .select()
-      .from(semesters)
-      .where(eq(semesters.isActive, true))
-      .limit(1)
-    const currentSemester = currentSemesterResult[0]
+  const currentSemesterResult = await db
+    .select()
+    .from(semesters)
+    .where(eq(semesters.isActive, true))
+    .limit(1)
+  const currentSemester = currentSemesterResult[0]
 
-    if (currentSemester) {
-      return currentSemester.name
-    }
-
-    throw new Error('未设置活跃学期')
-  } catch (error) {
-    console.error('获取当前学期失败:', error)
-    throw error
+  if (currentSemester) {
+    return currentSemester.name
   }
+
+  // 无活跃学期是正常业务状态，用业务错误码向调用方传达，不打错误日志
+  throw createApiError(
+    400,
+    SERVER_ERROR_CODES.SONG_NO_ACTIVE_SEMESTER,
+    '未设置活跃学期'
+  )
 }

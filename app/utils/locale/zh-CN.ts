@@ -4502,6 +4502,7 @@ export const serverErrors = {
   SONG_INVITATION_NOT_FOUND: '未找到待处理的邀请',
   AUTH_LOGIN_REQUIRED: '请先登录',
   SONG_NO_ACTIVE_SEMESTER_VOTE: '未设置活跃学期，无法进行投票操作',
+  SONG_NO_ACTIVE_SEMESTER: '系统未设置当前活跃学期，暂时无法投稿，请联系管理员',
   COMMON_INSUFFICIENT_PERMISSION: '权限不足',
   COMMON_TARGET_NOT_FOUND: '目标不存在',
   USER_NOT_PENDING: '仅待审核用户可执行审核操作',
